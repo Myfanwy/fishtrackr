@@ -15,12 +15,12 @@ splitFishStationVisits =
 redRowFun = # takes a list that has been separated by fish and station.  In our case, we have a list, each element of which is a TagID/Station combo.
   function(d)
   {
-    r = range(d$DateTimeUTC)
-    data.frame(Station = d$Station[1],
+    r = as.POSIXct(range(d$DateTimeUTC))
+    data.frame(TagID = d$TagID[1],
+               Station = d$Station[1],
                arrival = r[1],
                departure = r[2],
                residence = diff(r),
-               TagID = d$TagID[1],
                Sp = d$Sp[1],
                lon = d$lon[1],
                lat = d$lat[1],
@@ -30,8 +30,3 @@ redRowFun = # takes a list that has been separated by fish and station.  In our 
                stringsAsFactors = FALSE)
   }
 
-myRowFun =
-  function(d)
-  {
-    data.frame(Rkm = d$Rkm, Sp = d$Sp, MyYear = d$year, TagID = d$TagID)
-  }
