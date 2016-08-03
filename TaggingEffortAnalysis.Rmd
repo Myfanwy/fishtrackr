@@ -2,7 +2,7 @@
 title: "Tagging Effort Analysis"
 author: "Myfanwy Johnston"
 date: "July 27, 2016"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -16,58 +16,139 @@ library(dplyr)
 
 
 ```
-# Power Analysis
+# Power Analysis - or, why we're not doing one
 
-The reason to do a power analysis is to determine whether your sample size will give you a decent chance of detecting an "effect" in an experiment - that is, a decent chance of detecting some minimum deviation from the null hypothesis and the alternative hypothesis.  In our case, for example, we'd like to tag enough fish so that a good number of them continue upstream after being tagged.  With a normal experimental design, if we assume the true proportion of fish that head upstream is what we've observed in the past (between 10-35%), we could do an exact binomial test and get the sample size we need to make sure we detect 50% or more (an arbitrary number) of our fish heading upstream.  According to a quick power analysis, this would give us a target sample size of between 77 and 140; not helpful.  
+The reason to do a power analysis is to determine whether your sample size will give you a decent chance of detecting an "effect" in an experiment - that is, a decent chance of detecting some minimum deviation from the null hypothesis and the alternative hypothesis.  In our case, for example, we'd like to tag enough fish so that a good number of them continue upstream after being tagged.  With a normal experimental design, if we assume the true proportion of fish that head upstream is what we've observed in the past (between 10-35%), we could do an exact binomial test and get the sample size we need to make sure we detect 50% or more (an arbitrary number) of our fish heading upstream.  According to a quick exact binomial goodness-of-fit power analysis, this would give us a target sample size of between 77 and 140; not helpful.  
 
-The thing is a traditional power analysis doesn't *really* apply in our case, because we do actually detect the "effect" in question at almost 100% efficiency; we know whether every single one of our fish goes either upstream or downstream.  So it's not a matter of detecting the true proportion of fish that go in a given direction, it's predicting fish's behavior itself, conditional on tagging location and tag date.  And the best indication we have of that is past behavior.
+A traditional power analysis doesn't *really* apply in our case anyway, because we do actually detect the "effect" in question at almost 100% efficiency; we know whether every single one of our fish goes either upstream or downstream.  So it's not a matter of detecting the true proportion of fish that go in a given direction, it's predicting our fishes' *behavior*, conditional on tagging location and tag date.  And the best tool we have available for doing that is the past behavior of our fish.
 
-In the last YETT meeting, I mentioned that tagging location doesn't seem to have as large an effect on whether a fish heads upstream as we previously thought.  That's true if we just examine the direction a fish heads in right after being tagged (most fish head upstream after being tagged, regardless of tagging location), but if we're interested in fish that are eventually detected above Lisbon Weir, the story is quite different.
+# Does it matter when and where we tag fish?
 
-The graph below shows the proportion of fish tagged at each location that continued above Lisbon Weir, acorss years, and faceted by whether they were tagged "early" in the season (prior to October 20) or "late" in the season (after October 20).
+In the last YETT meeting, I mentioned that tagging location doesn't seem to have as large an effect on whether a fish heads upstream as we previously thought.  After looking deeper, that's still true if we just examine the direction a fish heads in right after being tagged: most fish head upstream, regardless of tagging location. That said, if we limit the analysis to the fish that are eventually detected above Lisbon Weir, the story is quite different.
 
-```{r timingplot, echo=FALSE}
+In general, fish tagged later in the season and higher up in the system have a much better chance of being subsequently detected upstream of Lisbon Weir.
 
-timingplot <- structure(list(year = c(2013, 2013, 2013, 2013, 2013, 2013, 2014, 
-2014, 2014, 2014, 2015, 2015, 2015, 2015, 2015), Tagging_Location = c("BRSTR", 
-"BRSTR", "FYKE", "FYKE", "LIS", "LIS", "BRSTR", "BRSTR", "FYKE", 
-"LIS", "BRSTR", "BRSTR", "FYKE", "LIS", "LIS"), timing = c("early", 
-"late", "early", "late", "early", "late", "early", "late", "early", 
-"late", "early", "late", "late", "early", "late"), subtotal = c(25L, 
-12L, 3L, 8L, 2L, 2L, 11L, 10L, 1L, 11L, 3L, 5L, 14L, 3L, 5L), 
-    abvlis = c(3L, 4L, 0L, 3L, 0L, 1L, 2L, 3L, 1L, 7L, 1L, 1L, 
-    8L, 1L, 2L), prop = c(0.12, 0.33, 0, 0.38, 0, 0.5, 0.18, 
-    0.3, 1, 0.64, 0.33, 0.2, 0.57, 0.33, 0.4)), class = c("grouped_df", 
-"tbl_df", "tbl", "data.frame"), row.names = c(NA, -15L), vars = list(
-    year, Tagging_Location), drop = TRUE, .Names = c("year", 
-"Tagging_Location", "timing", "subtotal", "abvlis", "prop"))
+The graph below shows the proportion of fish tagged at each location that continued above Lisbon Weir across years, faceted by whether they were tagged "early" in the season (prior to October 20) or "late" in the season (after October 20).  We don't have great data from the Fyke, so take that trendline with a huge grain of salt.  The thing to notice is that while seasonal timing doesn't seem to make a difference for sampling downstream (BRSTR), it does make a difference for fish tagged upstream (LIS & the FYKE).  The point labels are the relative sample sizes represented - note that there are two points overlapping in early 2013, making it hard to differentiate; for the Fyke, 0/3 fish tagged continued above Lisbon Weir; for LIS, 0/2 fish continued above Lisbon Weir.
 
-ll2 <- ggplot(timingplot, aes(x = factor(year), y = prop, group = Tagging_Location)) + geom_line(aes(color = Tagging_Location), size = 1.5) + facet_wrap(~timing, labeller = label_both) + geom_label(aes(label = prop))
+</br>
 
-ll2 + labs(x = "Tagging Season", y = "Proportion of Fish Tagged that were \n Detected Above Lisbon Weir", title = "Proportion of Fish that continued above Lisbon Weir \nby Tag Location, Year, and Tag Date")
+```{r timingplot, echo=FALSE, fig.align="center", fig.width=10, fig.height=7}
+library(dplyr)
+
+pp <- structure(list(timing = c("early", "early", "early", "early", 
+"early", "early", "early", "early", "early", "late", "late", 
+"late", "late", "late", "late", "late", "late", "late"), Tagging_Location = c("BRSTR", 
+"BRSTR", "BRSTR", "FYKE", "FYKE", "FYKE", "LIS", "LIS", "LIS", 
+"BRSTR", "BRSTR", "BRSTR", "FYKE", "FYKE", "FYKE", "LIS", "LIS", 
+"LIS"), year = c("2013", "2014", "2015", "2013", "2014", "2015", 
+"2013", "2014", "2015", "2013", "2014", "2015", "2013", "2014", 
+"2015", "2013", "2014", "2015"), abvlis = c("3", "3", "1", "0", 
+"1", "1", "0", "0", "2", "4", "2", "1", "3", "0", "7", "1", "7", 
+"1"), CountTimingTagged = c("25", "14", "3", "3", "1", "1", "2", 
+"0", "5", "12", "7", "5", "8", "0", "13", "2", "11", "3"), propAbvlis = c(0.12, 
+0.21, 0.33, 0, 1, 1, 0, 0, 0.4, 0.33, 0.29, 0.2, 0.38, 0, 0.54, 
+0.5, 0.64, 0.33), propdivide = c("3/25", "3/14", "1/3", "0/3", 
+"1/1", "1/1", "0/2", "0/0", "2/5", "4/12", "2/7", "1/5", "3/8", 
+"0/0", "7/13", "1/2", "7/11", "1/3")), .Names = c("timing", "Tagging_Location", 
+"year", "abvlis", "CountTimingTagged", "propAbvlis", "propdivide"
+), row.names = c(NA, -18L), class = "data.frame")
+
+ll3 <- ggplot(pp, aes(x = factor(year), y = propAbvlis, group = Tagging_Location)) + geom_point(shape=1, size=3) +
+  geom_path(aes(color = Tagging_Location), size = 1.5, linejoin = "bevel") + facet_wrap(~timing, labeller = label_both) + labs(x = "Tagging Year", y = "Proportion of Fish Tagged That Continued Above Lisbon Weir", title = "Proportion of Fish Detected Above Lisbon Weir \n by Tagging Location, Year, and Season")  
+ll3  + geom_text(aes(label = propdivide, fontface = "bold", vjust = -0.85), color = "gray20") + scale_y_continuous(limits = c(0,1))
+
+```
+
+# Clearing out the noise to find a prior
+
+When we calculate weighted averages and raw averages, we get a range of probabilities for fish ending up above Lisbon Weir, depending on whether you sample them early or late, and upstream or downstream:
+
+Timing | General Tagging Location | Percentage Range of Fish Sampled That Will Continue Upstream
+-------|--------------------------|------------------------------------------------------------
+Early  | Downstream               | 17% - 22%
+Early  | Upstream                 | 13% - 80%
+Late   | Downstream               | 27% - 29%
+Late   | Upstream                 | 46% - 57%
+
+<br>
+
+To remain consistent with past years, we have a lot of flexibility, but in general we've always had a slightly smaller sample size early in the season relative to late, and I'm happy to push that a little further to increase our odds of getting fish going upstream.  This means we can tag about 17 fish before October 20 (early) and 33 fish after October 20 (late). Totals for each sampling location will be:
+
+ - BRSTR: between 13-36 fish
+ - FYKE: between 1 and 23 fish (obviously we have no control over this)
+ - LIS: between 4 and 16 fish.
+
+For planning purposes and to give us the maximum chance of those fish heading upstream, I think we should move the fish allocated to the FYKE to Lisbon.  Adjusting for BRSTR's minimum, we should sample 13-14 fish at BRSTR and 35-36 fish upstream, total.
+
+As for how we should break that up in the tagging season, I ran a lot of different combinations through a paired binomial sampling distrubution simulation.  I'm showing the code for the  functions I set up, with the final numbers I chose, so people can try it for themselves or pick it apart and find any mistakes:
+
+
+```{r}
+
+# total N early: 17 between upstream and downstream
+# total N late: 33 between upstream and downstream
+
+set.seed(1)
+simPessimistic <- function(UpstreamEarly, UpstreamLate) { 
+  # UpstreamEarly = sample size of fish tagged at either LIS or in the FYKE, before October 20
+  # UpstreamLate = sample size of fish tagged at either LIS or in the FYKE, after October 20.
+  
+  early <- rbinom(1000, size = UpstreamEarly, prob = 0.13) + 
+    rbinom(1000, size = 17-UpstreamEarly, prob = 0.17) 
+    # 1000 is the number of random binomial distributions simulated
+    # size = UpstreamEarly
+    # prob = lower range of the probability of being detected abvlis if tagged early upstream, 
+    # based on previous years' data
+    # second prob = lower range of the probability of being detected abvlis if tagged early 
+    # downstream, based on previous years' data
+   
+  late <- rbinom(1000, size = UpstreamLate, prob = 0.46) +  
+    rbinom(1000, size = 33-UpstreamLate, prob = 0.27)
+    # size = UpstreamLate
+    # prob = lower range of the probability of of being detected abvlis if tagged late upstream
+    # second prob = lower range of the probability of being detected abvlis if tagged late downstream
+  ss <- early + late
+  frac = sum(ss > 18)/length(ss) # where 18 is the minimum number of fish we want detected above LIS.
+  return(frac) # this is the fraction of the results of the simulations that = 18 or greater.
+}
+
+simPessimistic(UpstreamEarly = 9, UpstreamLate = 28) 
+
+
+simOptimistic <- function(UpstreamEarly, UpstreamLate) {
+  # This is the exact same function as above, but with the probabilities changed to the upper 
+  # limits of the range
+   
+   early <- rbinom(1000, size = UpstreamEarly, prob = 0.80) + 
+     rbinom(1000, size = 17-UpstreamEarly, prob = 0.22) 
+   
+   late <- rbinom(1000, size = UpstreamLate, prob = 0.57) + 
+     rbinom(1000, size = 33-UpstreamLate, prob = 0.29) 
+   
+  ss <- early + late
+  frac = sum(ss > 18)/length(ss)
+  return(frac)
+}
+
+simOptimistic(UpstreamEarly = 9, UpstreamLate = 28)
 
 
 ```
 
+# What the simulations say
 
-The following table summarizes this information in greater detail, including yearly averages and standard deviations:
+Pessimistically, if we tag 7 fish early at BRSTR and 6 fish late at BRSTR, then 9 fish early upstream and 28 fish late upstream, then we will have about a 30% chance of getting at least 18 fish detected above Lisbon Weir.
 
+Optimistically, we will have about a 99% chance of getting at least 18 fish detected above Lisbon Weir (and likely a lot more).
 
-However, if we want to meet all our goals (hitting our sample size, ensuring we have a decent number of fish that continue upstream, and remaining as consistent as possible with previous years of the study), it becomes a question of trade-offs.  BRSTR is easy pickings, so we could easily achieve our target sample size, but only 20% of the fish we tag there are going to continue above Lisbon Weir (if past trends hold and we sampled only at BRSTR, only ~10 fish would reach above Lisbon Weir).  
+# Summary
 
-Additionally, for BRSTR, that number may not fluctuate as much with seasonality as I had thought; of the 14 fish tagged at BRSTR that continued to at least above Lisbon, 6 were tagged prior to October 20 ("early") and 8 were tagged later than October 20 ("late").  In otherwords, fish tagged at BRSTR had almost an equal chance of being detected above Lisbon Weir, regardless of when they were tagged.  
+I think if we want the best possible chance of achieving all our goals, we should sample ~7 fish BRSTR before October 20 and try to get at least 9 fish tagged upstream (between the FYKE and at Lisbon) before October 20.  After October 20, we should sample another 6 BRSTR and get the rest (28 fish) upstream.  We have flexibility in that framework, but I'd like to get at least 20 fish sampled upstream late in the season; less than that and even the optimistic outlook starts getting bad.
 
-This is not the case for fish tagged in the Fyke or at Lisbon.  Of the 15 fish tagged at the Fyke that were detected above Lisbon, 14 of them were tagged late in the season, and only 1 was tagged earlier.  It's very similar for Lisbon: of 12 fish tagged at Lisbon that continued above LIS, 11 of them were tagged later.
+I know that's waaaay too much information and I could have just told you the tagging plan, but I'd love it if someone could point out anywhere I'm using bad logic.  Let me know if you have any questions!
 
-In summary, I think if we want the best possible chance of achieving all our goals , we should sample a decent number down BRSTR early in the season, and focus tagging up at LIS later in the season.  An example of the sampling schedule would be:
-
-September 20 - October 20: sample 1-2 days/wk BRSTR, catching up to 20 fish.
-October
-
-
-```{r cars}
-# proportion of total fish that continue upstream after being tagged:
+<br>
 
 
-```
+
 

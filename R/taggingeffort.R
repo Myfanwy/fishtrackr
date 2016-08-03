@@ -1,5 +1,6 @@
 library(dplyr)
 library(ggplot2)
+library(lubridate)
 fishpaths <- filter(fishpaths, Sp == "chn")
 fishpaths$year <- lubridate::year(fishpaths$DateTagged)
 
@@ -8,6 +9,7 @@ names(allt)
 allt$year <- lubridate::year(allt$DateTagged)
 allt$Tagging_Location <- str_replace(allt$Tagging_Location, 'Fyke', 'FYKE')
 allt <- select(allt, TagID, Tagging_Location, DateTagged, year, Sp, `Tagging Group`)
+allt
 
 # visualizing tagging locations across years
 allt %>% 
@@ -15,6 +17,7 @@ allt %>%
   filter(`Tagging Group` == "fca_2014" | `Tagging Group` == "fca_2013" | `Tagging Group` == "fca_2012" | `Tagging Group` == "fca_2015") %>% 
   summarise(count = n()) %>% 
   ggplot(., aes(Tagging_Location, count)) + geom_bar(aes(fill = Tagging_Location), stat = "identity") + facet_wrap(~year)
+allt
 
 tagsum <- allt %>% 
   filter(`Tagging Group` == "fca_2014" | `Tagging Group` == "fca_2013" | `Tagging Group` == "fca_2012" | `Tagging Group` == "fca_2015") %>% 
@@ -22,13 +25,16 @@ tagsum <- allt %>%
   mutate(total = n()) %>% 
   ungroup() %>% 
   group_by(year, Tagging_Location) %>% 
-  summarise(CountTagged = n(), TotalTaggedYear = unique(total), PropTaggedYearLoc = (CountTagged/TotalTaggedYear)*100) # TotalTaggedYear only works b/c sample sizes are different every year
+  summarise(CountTagged = n()) %>% 
+  ungroup() %>% 
+  group_by(year) %>% 
+  mutate(TotalTaggedYear = sum(CountTagged))
 tagsum
 
   # determine whether fish are detected upstream of tagging location
 
 # add riverkm to tagging location
-taglockey <- as.data.frame(cbind(Tagging_Location = c("BRSTR", "FYKE", "LIS", "Abv_LIS", "WW"), TagLocRkm = c(117, 134, 134, 136, 165)))
+taglockey <- as.data.frame(cbind(Tagging_Location = c("BRSTR", "FYKE", "LIS", "Abv_LIS", "WW"), TagLocRkm = c(117, 133, 134, 136, 165)))
 taglockey
 
 allt <- inner_join(allt, taglockey, by = "Tagging_Location")
@@ -57,10 +63,10 @@ fp <- fp %>%
   group_by(TagID) %>% 
   mutate(maxrkm = max(Rkm))
 
-# summary of fish that go above lisbon by tagging location
+# summary of fish that go above lisbon by tagging location: all years pooled
 fpsumm <- fp %>% 
+  group_by(Tagging_Location, TagID) %>% 
   filter(!duplicated(TagID)) %>% 
-  group_by(Tagging_Location) %>% 
   summarise(upstream = sum(maxrkm > TagLocRkm), downstream = sum(maxrkm <= TagLocRkm), 
             abvlis = sum(maxrkm >= 136)) %>%  # gives binomial count by TagID
   summarise(us = sum(upstream), ds = sum(downstream), abvlis = sum(abvlis), total = sum(us, ds)) #gives final count
@@ -70,65 +76,82 @@ fpsumm
 11/129 # only ~9% do not ever go upstream of their tagging location
 48/129 # about 37% of tagged fish are detected upstream of lisbon weir; that's including the ones that were tagged AbvLis, though
 
-# breakdown by taglocation and year; plot proportions (barplot?), facet by year
-options(digits = 4)
-pp <- fp %>% 
-  filter(!duplicated(TagID), year != 2012, Tagging_Location != "Abv_LIS" & Tagging_Location != "WW") %>% 
-  group_by(year, Tagging_Location) %>% 
-  summarise(totaltagged = n(), abvlis = sum(maxrkm >= 136), prop = round((abvlis/totaltagged), 2)) 
-pp
-
-# grouped Barplot (terrible - for exercise purposes only)
-p2 <- ggplot(pp, aes(x = Tagging_Location, y = abvlis)) + 
-  geom_bar(stat = "identity", aes(fill = Tagging_Location, label = prop)) + 
-  facet_wrap(~year) + labs(x = "Tagging Location", y = "Number of Fish Detected Above Lisbon Weir", title = "Number of fish that continued above Lisbon Weir by Tag Location and Year; \nlabels represent proportion of total fish tagged at that location") + scale_y_continuous(breaks = c(1:10), minor_breaks = 1)
-
-p2 + geom_label(aes(label = pp$prop))
-
 # find out proportions of fish detected abv lisbon by tag date
-# redo with Julian Day
+# redo with Julian Day ##
 names(fp)
-tagdate <- select(fp, TagID, Rkm, DateTagged, year, Tagging_Location, TagLocRkm, CountTagged, TotalTaggedYear, PropTaggedYearLoc, maxrkm)
-tagdate <- filter(tagdate, !duplicated(TagID))
-unique(tagdate$maxrkm)
-tagdate$DateTaggedAbb <- as.POSIXct(tagdate$DateTagged, format = "%Y-%m-%d")
-tagdate$m <- lubridate::month(tagdate$DateTaggedAbb)
-tagdate$d <- lubridate::day(tagdate$DateTaggedAbb)
-tagdate$dm <- paste(tagdate$m, tagdate$d, sep = "-")
-class(tagdate$dm)
-tagdate$dm <- as.POSIXlt(tagdate$dm, format = "%m-%d")
-tail(tagdate)
-tagdate <- select(tagdate, -DateTaggedAbb, -m, -d)
+tagdate <- select(fp, TagID, Rkm, DateTagged, year, Tagging_Location, TagLocRkm, CountTagged, TotalTaggedYear, maxrkm)
+tagdate <- tagdate %>% 
+  group_by(year, Tagging_Location) %>% 
+  filter(!duplicated(TagID))
+head(tagdate)
+length(unique(tagdate$TagID))
 
-tagdate$dm[1:6]
+unique(tagdate$maxrkm)
+
+# Convert DateTagged to usable julian days with a for-loop
+tagdate$jd <- rep("NA", length.out = length(tagdate$DateTagged))
+
+  for( i in 1:length(tagdate$jd)) {
+  if(tagdate$year[i] == 2012) {
+  tagdate$jd[i] <- julian(tagdate$DateTagged[i], origin = as.Date("2012-01-01")) 
+} else if(tagdate$year[i] == 2013) {
+ tagdate$jd[i] <- julian(tagdate$DateTagged[i], origin = as.Date("2013-01-01")) 
+} else if(tagdate$year[i] == 2014) {
+  tagdate$jd[i] <- julian(tagdate$DateTagged[i], origin = as.Date("2014-01-01"))
+} else { tagdate$jd[i] <- julian(tagdate$DateTagged[i], origin = as.Date("2015-01-01"))}
+                        }
+tagdate$jd <- as.numeric(tagdate$jd)
+julian(as.Date("2012-10-20"), origin = as.Date("2012-01-01")) # 2012 was a leap year
+julian(as.Date("2013-10-20"), origin = as.Date("2013-01-01"))
+julian(as.Date("2014-10-20"), origin = as.Date("2014-01-01"))
+julian(as.Date("2015-10-20"), origin = as.Date("2015-01-01"))
+
+tail(tagdate)
 
 # facet line plot by early/late tagged fish
 
-pp <- fp %>% 
-  filter(!duplicated(TagID), year != 2012, Tagging_Location != "Abv_LIS" & Tagging_Location != "WW") %>% 
-  group_by(year, Tagging_Location) %>% 
-  summarise(totaltagged = n(), abvlis = sum(maxrkm >= 136), prop = round((abvlis/totaltagged), 2)) 
+tagdate$abv_lis <- ifelse(tagdate$maxrkm >= 136, 1, 0)
+tagdate$timing <- ifelse(tagdate$jd <= 293, "early", "late")
+head(tagdate)
+
+options(digits = 2)
+pp <- tagdate %>% 
+  filter(year != 2012, Tagging_Location != "Abv_LIS" & Tagging_Location != "WW") %>% 
+    group_by(timing, Tagging_Location, year) %>% 
+    summarise(abvlis = sum(abv_lis), CountTimingTagged = n(), propAbvlis = abvlis/CountTimingTagged)
 pp
+str(pp)
+
+# append rows for missing values
+options(digits = 2)
+pp[nrow(pp) + 1, ] <- c("early", "LIS", 2014, 0, 0, 0.00)
+pp[nrow(pp) + 1, ] <- c("late", "FYKE", 2014, 0, 0, 0.00)
+pp <- arrange(pp, timing, Tagging_Location, year)
+pp$propAbvlis <- round(as.numeric(pp$propAbvlis), digits = 2)
+
+pp <- as.data.frame(pp)
+# pp <- filter(pp, Tagging_Location != "FYKE") # for a cleaner graph
+pp$propdivide <- as.character(paste(pp$abvlis, pp$CountTimingTagged, sep = "/"))
+pp
+
+ll3 <- ggplot(pp, aes(x = factor(year), y = propAbvlis, group = Tagging_Location)) + geom_point(shape=1, size=3) +
+  geom_path(aes(color = Tagging_Location), size = 1.5, linejoin = "bevel") + facet_wrap(~timing, labeller = label_both)
+ll3 + geom_text(aes(label = propdivide, fontface = "bold", vjust = -1), color = "gray20")
+
+# put into write-up
+dput(pp)
+
+# spotcheck
+filter(tagdate, year == 2013 & timing == "early" & Tagging_Location == "FYKE")
 
 # linechart (much better (trends over time))
 
 ll <- ggplot(pp, aes(x = factor(year), y = prop, group = Tagging_Location)) + geom_line(aes(color = Tagging_Location), size = 3)
 ll
 
-head(tagdate)
-unique(tagdate$Tagging_Location) # have to get abv_lis & ww out
-
-timingplot <- tagdate %>% 
-  filter(year != 2012, Tagging_Location != "Abv_LIS" & Tagging_Location != "WW") %>% 
-  group_by(TagID) %>% 
-  mutate(timing = ifelse(dm < "2016-10-20", "early", "late")) %>% 
-  ungroup() %>% 
-  group_by(year, Tagging_Location, timing) %>% 
-  summarise(subtotal = n(), abvlis = sum(maxrkm >=136), prop = round((abvlis/subtotal), 2))
-timingplot
-
-ll2 <- ggplot(timingplot, aes(x = factor(year), y = prop, group = Tagging_Location)) + geom_line(aes(color = Tagging_Location), size = 1.5) + facet_wrap(~timing, labeller = label_both) + geom_label(aes(label = prop))
+ll2 <- ggplot(pp, aes(x = factor(year), y = prop, group = Tagging_Location)) + geom_line(aes(color = Tagging_Location), size = 1.5) + facet_wrap(~timing, labeller = label_both) + geom_label(aes(label = prop))
 
 ll2 + labs(x = "Tagging Season", y = "Proportion of Fish Tagged that were \n Detected Above Lisbon Weir", title = "Proportion of Fish that continued above Lisbon Weir \nby Tag Location, Year, and Tag Date")
 
-dput(timingplot)
+## Make the same plot, but for numbers sampled there
+
