@@ -32,7 +32,7 @@ tmp = lapply(f1, splitFishStationVisits) # apply this function, which adds the g
 
 fishpaths = do.call(rbind, tmp) # get the whole thing into a df
 head(fishpaths)
-beep()
+beep(0)
 
 #tmp2 = lapply(f1, splitFishStationVisits, rowFunc = myRowFun, TimeThreshold = 60*20) # change the threshold if you like
 # tmp3 = do.call(rbind, tmp2)

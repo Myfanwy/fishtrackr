@@ -72,10 +72,6 @@ fpsumm <- fp %>%
   summarise(us = sum(upstream), ds = sum(downstream), abvlis = sum(abvlis), total = sum(us, ds)) #gives final count
 fpsumm
 
-118/129 # over 90% of tagged fish go upstream of their tagging location
-11/129 # only ~9% do not ever go upstream of their tagging location
-48/129 # about 37% of tagged fish are detected upstream of lisbon weir; that's including the ones that were tagged AbvLis, though
-
 # find out proportions of fish detected abv lisbon by tag date
 # redo with Julian Day ##
 names(fp)
