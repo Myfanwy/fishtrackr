@@ -5,7 +5,7 @@ splitFishStationVisits =
     #   if(nrow(d) == 0)
     #      return(data.frame(Station = character(), ....))
     d = d[order(d$DateTimeUTC), ] #order dataframe by DateTimeUTC
-    g = cumsum( c(0, diff(d$DateTimeUTC)) > TimeThreshold )
+    g = cumsum( c(0, diff(as.numeric(d$DateTimeUTC))) > TimeThreshold )
     ans = by(d, g, rowFunc) # apply redRowFun by the grouping variable g to the dataframe
     do.call(rbind, ans) # bind that into a dataframe
   }
