@@ -3,7 +3,7 @@ library(ggplot2)
 library(lubridate)
 fishpaths <- filter(fishpaths, Sp == "chn")
 fishpaths$year <- lubridate::year(fishpaths$DateTagged)
-
+save(fishpaths, file = "fishpaths.RData")
 allt <- as.data.frame(alltags)
 names(allt)
 allt$year <- lubridate::year(allt$DateTagged)

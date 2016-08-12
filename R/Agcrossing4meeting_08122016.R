@@ -54,11 +54,11 @@ d <- f %>%
   filter(Sp == "chn") %>% 
   group_by(year, Rkm) %>% 
   summarise(nfish = length(unique(TagID)))
-
+dput(d)
 head(d)
 
 # line graph to show us the true distribution of number of fish per riverkm
-ggplot(d, aes(Rkm, nfish)) + geom_point() + geom_path() + facet_wrap(~year) 
+ggplot(d, aes(Rkm, nfish)) + geom_point() + geom_path() + facet_wrap(~year) + labs(x = "River Kilometer \nBeginning at Confluence, ending at Wallace Weir", y = "Number of Unique Fish Detected", title = "Number of Unique Fish Detected by River Kilometer in the Yolo Bypass \n 2012-2016")
 
 # Density graph
 library(rethinking)
@@ -229,6 +229,7 @@ a3paths %>%
 a3paths <- a3paths %>% filter(arrival != "2014-05-15 17:34:29")
 a3paths[a3paths$arrival == "2014-05-15 17:34:29", ] # don't know how to do this, but it's not that important
 
+save(a3paths, file = "Ag4fishpaths.Rda")
 ggplot(a3paths, aes(x = arrival, y = Station, group = TagID)) + geom_line(aes(color = factor(TagID))) + 
   facet_wrap(~year, scales = "free_x") +
   theme(legend.position = "none") + ggtitle("Paths of Ag Crossing #4 Fish")
@@ -267,7 +268,7 @@ a3paths_short %>%
   group_by(TagID, Station) %>% 
   arrange(arrival) %>% 
   summarise(totalres = sum(res2)) %>% 
-  ggplot(., aes(Station, as.numeric(totalres))) + geom_boxplot() + scale_y_continuous(limits = c(0, 200))+ geom_point(alpha = 0.2, position = "jitter") + labs(y = "Total Residence in Hours", title = "Residence Time of AgCrossing Fish")
+  ggplot(., aes(Station, as.numeric(totalres))) + geom_boxplot() + scale_y_continuous(limits = c(0, 200))+ geom_point(alpha = 0.2, position = "jitter") + labs(y = "Residence in Hours", title = "Residence Time of Ag4 Fish at Each Monitor in the Yolo Bypass Array")
 
 # now visualize entire tagged population, minus the ag4 crossing fish:
 # setup data:
@@ -308,7 +309,7 @@ op_short %>%
   group_by(TagID, Station) %>% 
   arrange(arrival) %>% 
   summarise(totalres = sum(res2)) %>% 
-  ggplot(., aes(Station, as.numeric(totalres))) + geom_boxplot() + scale_y_continuous(limits = c(0, 150)) + geom_point(alpha = 0.2, position = "jitter") + labs(y = "Total Residence in Hours", title = "Residence Time of Fish That Did NOT Encounter AgCrossing #4")
+  ggplot(., aes(Station, as.numeric(totalres))) + geom_boxplot() + scale_y_continuous(limits = c(0, 150)) + geom_point(alpha = 0.2, position = "jitter") + labs(y = "Total Residence in Hours", title = "Residence Time of Non-Ag4 Fish at Each Station in the Yolo Bypass Array")
 
 # K - this is a good first look; need to figure out how to visualize residence/travel time directly.
 
