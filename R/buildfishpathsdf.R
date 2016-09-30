@@ -3,7 +3,7 @@
 
 library(ybp)
 library(beepr)
-f <- all69khz
+f <- all69khz_grouped
 
 # --- Run this chunk first if you want to group stations for plots --- #
 library(stringr)
