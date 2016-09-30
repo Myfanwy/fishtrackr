@@ -7,7 +7,11 @@
 fishpaths(x, TagID_col, Station_col)
 }
 \arguments{
-\item{Station_col}{}
+\item{x}{a dataframe of detections}
+
+\item{TagID_col}{must be called "TagID"}
+
+\item{Station_col}{must be called "Station"}
 }
 \value{
 dataframe with fishpaths for each tagID

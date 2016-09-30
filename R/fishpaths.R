@@ -1,8 +1,8 @@
 #' fishpaths
 #'
-#' @param x
-#' @param TagID_col
-#' @param Station_col
+#' @param x a dataframe of detections
+#' @param TagID_col must be called "TagID"
+#' @param Station_col must be called "Station"
 #'
 #' @return dataframe with fishpaths for each tagID
 #' @export
