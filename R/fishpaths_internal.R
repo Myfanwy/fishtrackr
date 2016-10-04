@@ -1,5 +1,5 @@
 splitFishStationVisits =
-  function(d, TimeThreshold = 60*60, rowFunc = redRowFun) # where d is 
+  function(d, TimeThreshold = 60*60, rowFunc = redRowFun) # where d is
   {
     #   if(nrow(d) == 0)
     #      return(data.frame(Station = character(), ....))
@@ -11,7 +11,7 @@ splitFishStationVisits =
 
 
 
-redRowFun = # takes a list that has been separated by fish and station.  In our case, each element of the list is a TagID/Station combo.
+redRowFun = # takes a list that has been separated by fish and station and outputs a new dataframe with the following columns, via an index.  In our case, each element of the list is a TagID/Station combo.
   function(d)
   {
     r = as.POSIXct(range(d$DateTimeUTC))
