@@ -19,6 +19,9 @@ dataframe with fishpaths for each tagID
 \description{
 fishpaths
 }
+\details{
+For current version of function, rest of the columns must be present in the dataframe with the following names: "DateTimeUTC", "Receiver",  "TagID",   "Station" , "Rkm" ,   "lat" ,    "lon",   "Sp", "DateTagged".  This will be simplified to just "DateTimeUTC", "TagID" and "Station" soon.
+}
 \examples{
 # Test
 library(ybp)

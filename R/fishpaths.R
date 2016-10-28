@@ -3,6 +3,7 @@
 #' @param x a dataframe of detections
 #' @param TagID_col must be called "TagID"
 #' @param Station_col must be called "Station"
+#' @details For current version of function, rest of the columns must be present in the dataframe with the following names: "DateTimeUTC", "Receiver",  "TagID",   "Station" , "Rkm" ,   "lat" ,    "lon",   "Sp", "DateTagged".  This will be simplified to just "DateTimeUTC", "TagID" and "Station" soon.
 #'
 #' @return dataframe with fishpaths for each tagID
 #' @export
