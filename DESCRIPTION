@@ -8,3 +8,4 @@ Description: Right now it does very little, but we have plans.  Also note that R
 License: MIT
 LazyData: TRUE
 RoxygenNote: 5.0.1
+Suggests: testthat
