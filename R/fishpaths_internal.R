@@ -15,17 +15,9 @@ redRowFun = # takes a list that has been separated by fish and station and outpu
   function(d)
   {
     r = as.POSIXct(range(d$DateTimeUTC))
-    data.frame(TagID = d$TagID[1],
-               Station = d$Station[1],
+    data.frame(d[1,],
                arrival = r[1],
                departure = r[2],
-               residence = diff(r),
-               Sp = d$Sp[1], # don't really need this column
-               lon = d$lon[1],
-               lat = d$lat[1],
-               Rkm = d$Rkm[1],
-               Receiver = d$Receiver[1],
-               DateTagged = d$DateTagged[1], # don't really need this column
                stringsAsFactors = FALSE)
   }
 
