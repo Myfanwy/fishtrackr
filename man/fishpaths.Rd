@@ -20,7 +20,7 @@ dataframe with fishpaths for each tagID
 fishpaths
 }
 \details{
-For current version of function, rest of the columns must be present in the dataframe with the following names: "DateTimeUTC", "Receiver",  "TagID",   "Station" , "Rkm" ,   "lat" ,    "lon",   "Sp", "DateTagged".  This will be simplified to just "DateTimeUTC", "TagID" and "Station" soon.
+For current version of function, the detection column of dates and times must be called DateTimeUTC, and must be in POSIXct "%Y-%m-%d %H:%M:%S" format.  Any other columns are optional, but will be carried over to the final dataframe.
 }
 \examples{
 # Test
@@ -28,4 +28,3 @@ library(ybp)
 f <- all69khz_grouped
 fishpaths(f, f$TagID, f$Station)
 }
-

@@ -4,8 +4,10 @@ Title: A set of functions for analyzing and summarizing acoustic telemetry data
 Version: 0.1.0
 Author: Myfanwy Johnston
 Maintainer: Myfanwy Johnston <merowlands@ucdavis.edu>
-Description: Right now it does very little, but we have plans.  Also note that Ryan Peek is the author of the getCDEC() function
+Description: Right now it does very little, but we have plans. Also note that
+    Ryan Peek is the author of the getCDEC() function
 License: MIT
 LazyData: TRUE
-RoxygenNote: 5.0.1
-Suggests: testthat
+RoxygenNote: 6.0.1
+Suggests:
+    testthat
