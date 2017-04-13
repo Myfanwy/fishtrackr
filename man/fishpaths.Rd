@@ -19,9 +19,6 @@ dataframe with fishpaths for each tagID
 \description{
 fishpaths
 }
-\details{
-For current version of function, the detection column of dates and times must be called DateTimeUTC, and must be in POSIXct "%Y-%m-%d %H:%M:%S" format.  Any other columns are optional, but will be carried over to the final dataframe.
-}
 \examples{
 # Test
 library(ybp)
