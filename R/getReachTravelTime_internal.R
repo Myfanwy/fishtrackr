@@ -40,15 +40,18 @@ reachTransit <-  function(a){  # where a is a dataframe of a single reach, multi
   a = a[order(a$arrival),] # Sort each sub-group by 'arrival'
   a = a[!duplicated(a$Station),] # Retain only the first appearances of 'arrival'
   a = a[order(a$arrival),] # Sort each sub-group by 'arrival'
-
-  b = as.data.frame(
-    cbind(TagID = as.numeric(a$TagID[1]), # obtain TagID, station, and ttime of the sub-group,
-          Station1 = a$Station[1],
-          Station2 = a$Station[NROW(a)],
-          ttime = (as.numeric(as.POSIXct(a$arrival[NROW(a)])) -
-                     as.numeric(a$releasetime))/(60*60*24)) # get travel time in days
-  )
-
+    
+    b = data.frame(
+        # cbind converts to matrix, so all types are coerced to be the same type
+        # which is a character vector - data.frame then converts these to factors
+        
+        TagID = as.numeric(a$TagID[1]), # obtain TagID, station, and ttime of the sub-group,
+        Station1 = a$Station[1],
+        Station2 = a$Station[NROW(a)],
+        ttime = (as.numeric(as.POSIXct(a$arrival[NROW(a)])) -
+                 as.numeric(a$releasetime))/(60*60*24),
+        stringsAsFactors = FALSE) # get travel time in days
+    
   b = b[!duplicated(b$TagID), ]
   return(b)
 
