@@ -17,10 +17,6 @@ getReachTravelTime <- function(df, s1, s2) {
 
   aa = do.call(rbind, lapply(split(x, x$TagID), reachTransit))
 
-  aa$TagID <- as.numeric(as.character(aa$TagID))
-  aa$ttime <- as.numeric(as.character(aa$ttime))
-  aa$Station1 <- as.character(aa$Station1)
-  aa$Station2 <- as.character(aa$Station2)
   aa$reachname <- paste0(s1, s2)
   return(aa)
 }
