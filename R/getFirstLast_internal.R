@@ -1,5 +1,4 @@
 #' getFirstLast_internal; called by getFirstLast
-#'
 
 firstlastOneFish <- function(x) {
 
