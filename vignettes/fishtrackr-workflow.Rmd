@@ -1,0 +1,83 @@
+---
+title: "Fishtrackr Workflow"
+author: "Myfanwy Johnston"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The idea behind fishtrackr is that everyone who uses telemetry data to track outmigrating or upmigrating fish needs to get roughly the same initial summary information from their dataset of acoustic telemetry fish detections.  This information is:
+
+ - how many fish were detected, and at which stations?
+ - where was a fish's first detection?  Where was its last detection?
+ - what was the detection window (the time range of detections in the dataset)?
+ - what were the fish paths through the array?
+ - what was the residence of fish in the system?  At particular stations?
+ - what was the total travel time of fish? Reach-specific travel times?
+ - How fast were the fish moving across their total paths? 
+ - How fast were fish moving in a particular reach?
+ - How far did fish travel?
+
+## Starting Dataframe
+
+The raw detection data is assumed to have at least 4 columns:
+
+  1) TagID
+  2) Date/Time of detection, in UTC
+  3) Station
+  4) River kilometer
+
+## Functional Workflow
+
+There are five different clusters of related functions: fishpaths, first/last, residence, travel time, distance, and movement rates.  In general, the order of function calls should probably go:
+
+  fishpaths() -> firstlast() -> residence/ttime/distance/movementrates
+
+## First step: QAQC on the input data
+
+First we have to test that:
+
+ 1) all your TagIDs are legit and in numeric format (if you have tags with letters in them, use the tag serial number)
+ 2) your date/time column is in POSIX.ct format, "YYYY-MM-DD HH:MM:SS", and doesn't have any duplicate times for the same fish, and that you don't have any detections that take place in the future
+ 3) Station names are in character format, no spaces or weird symbols
+ 4) Rkms are in numeric format, no negative values
+ 
+ Most of this is currently done with the checkInputData() function.
+ 
+## Fishpaths Function
+
+see ?fishpaths
+ 
+## first/last functions
+
+The firstlast() function will take your input df and output a dataframe with the TagID, location of first detection (always the release site if you're working with outmigration data), the station of the last detection, the travel time between those detections, and the distance between those stations.
+
+ 
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))
