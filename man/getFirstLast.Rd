@@ -16,5 +16,8 @@ df with TagID, station of first detection, station of last detection, travel tim
 getFirstLast
 }
 \details{
-function author: Myfanwy Johnston
+Function selects the first station as that with the earliest time, breaking ties with the lowest river km, and the last station as that with the last time, with the highest river km.
+}
+\author{
+Myfanwy Johnston
 }
