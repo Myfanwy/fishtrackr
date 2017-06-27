@@ -3,7 +3,9 @@ A collection of functions for summarizing acoustic telemetry datasets.
 
 Developed using telemetry data from Vemco acoustic tags, though ultimate goal is cross-compatibility with JSATs, PIT tags, etc.
 
-## Functionality Goals: will change depending on the objectives of the dataset in question, but in general:
+## Functionality Goals 
+
+Will change depending on the objectives of the dataset in question, but in general:
 
 #### Array-level
 
