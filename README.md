@@ -1,6 +1,11 @@
 # fishtrackr
 A collection of functions for summarizing acoustic telemetry datasets.
 
+install:
+
+`devtools::install_github("Myfanwy/fishtrackr")`
+`library(fishtrackr)`
+
 Developed using telemetry data from Vemco acoustic tags, though ultimate goal is cross-compatibility with JSATs, PIT tags, etc.
 
 ## Functionality Goals 
