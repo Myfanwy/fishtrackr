@@ -4,7 +4,7 @@
 \alias{fishpaths}
 \title{fishpaths}
 \usage{
-fishpaths(x, TagID_col, Station_col)
+fishpaths(x, TagID_col, Station_col, Datetime_col)
 }
 \arguments{
 \item{x}{a dataframe of detections}
@@ -12,6 +12,8 @@ fishpaths(x, TagID_col, Station_col)
 \item{TagID_col}{must be called "TagID"}
 
 \item{Station_col}{must be called "Station"}
+
+\item{Datetime_col}{indicate the column that contains detection date and time; must be in POSIXct format (YYYY-MM-DD HH:MM:SS or similar)}
 }
 \value{
 dataframe with fishpaths for each tagID

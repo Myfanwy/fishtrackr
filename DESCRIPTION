@@ -8,7 +8,7 @@ Description: Right now it does very little, but we have plans. Also note that
     Ryan Peek is the author of the getCDEC() function
 License: MIT
 LazyData: TRUE
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Suggests:
     testthat,
     knitr,
