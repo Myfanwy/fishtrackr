@@ -23,7 +23,7 @@ fishpaths <- function(x, TagID_col, Station_col, Datetime_col="DateTimeUTC") {
 
   f1 <- split(x, list(TagID_col, Station_col))
   f1 <- f1[ sapply(f1, nrow) > 0 ]
-  tmp = lapply(f1, splitFishStationVisits)
+  tmp = lapply(f1, splitFishStationVisits, dtc2 = Datetime_col)
   fishpaths = do.call(rbind, tmp)
 
 }
@@ -32,5 +32,5 @@ fishpaths <- function(x, TagID_col, Station_col, Datetime_col="DateTimeUTC") {
 #test
 d = readRDS("data/onetag.rds")
 
-f1 <- fishpaths(d, d$TagID, d$Station, "DateTimePST") # error
+f1 <- fishpaths(d, d$TagID, d$Station, "DateTimePST") # error in (function (..., deparse.level = 1)  : cannot coerce type 'closure' to vector of type 'list' ... debug shows it's when the output of splitFishStationVisits gets handed to fishpaths()... thinks the output of splitFishStationVisits is a function or list of functions...?
 
