@@ -1,23 +1,20 @@
-splitFishStationVisits =
-  function(d, TimeThreshold = 60*60, rowFunc = redRowFun) # where d is
+redRowFun =
+  function(d, dtc1)
   {
-    #   if(nrow(d) == 0)
-    #      return(data.frame(Station = character(), ....))
-    d = d[order(d$DateTimeUTC), ] #order dataframe by DateTimeUTC
-    g = cumsum( c(0, diff(d$DateTimeUTC)) > TimeThreshold )
-    ans = by(d, g, rowFunc) # apply redRowFun by the grouping variable g to the dataframe
-    do.call(rbind, ans) # bind that into a dataframe
-  }
-
-
-
-redRowFun = # takes a list that has been separated by fish and station and outputs a new dataframe with the following columns, via an index.  In our case, each element of the list is a TagID/Station combo.
-  function(d)
-  {
-    r = as.POSIXct(range(d$DateTimeUTC))
+    r = as.POSIXct(range(d[[dtc1]]))
     data.frame(d[1,],
                arrival = r[1],
                departure = r[2],
                stringsAsFactors = FALSE)
   }
+#-------------------------------------------------------#
 
+splitFishStationVisits =
+  function(d, TimeThreshold = 60*60, rowFunc = redRowFun, dtc2 = Datetime_col)
+  {
+    d = d[order(d[[dtc2]]), ] #order dataframe by DateTimeUTC
+    g = cumsum( c(0, diff(d[[dtc2]])) > TimeThreshold )
+    ans = by(d, g, rowFunc, dtc1 = dtc2) # apply redRowFun by the grouping variable g to the dataframe
+    do.call(rbind, ans) # bind that into a dataframe
+  }
+#-------------------------------------------------------#

@@ -31,6 +31,9 @@ fishpaths <- function(x, TagID_col, Station_col, Datetime_col="DateTimeUTC") {
 
 #test
 d = readRDS("data/onetag.rds")
+d2 = readRDS("data/alltags.rds")
 
 f1 <- fishpaths(d, d$TagID, d$Station, "DateTimePST") # error in (function (..., deparse.level = 1)  : cannot coerce type 'closure' to vector of type 'list' ... debug shows it's when the output of splitFishStationVisits gets handed to fishpaths()... thinks the output of splitFishStationVisits is a function or list of functions...?
-
+head(f1)
+f2 <- fishpaths(d2, d2$TagID, d2$Station, "DateTimePST")
+head(f2)
