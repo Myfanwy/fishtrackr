@@ -4,7 +4,7 @@
 \alias{firstlastOneFish}
 \title{getFirstLast_internal; called by getFirstLast}
 \usage{
-firstlastOneFish(x)
+firstlastOneFish(x, tagidcol, datetimecol = dtc2, stationcol = stnc2)
 }
 \description{
 getFirstLast_internal; called by getFirstLast

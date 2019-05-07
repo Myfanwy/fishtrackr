@@ -10,7 +10,7 @@ redRowFun =
 #-------------------------------------------------------#
 
 splitFishStationVisits =
-  function(d, TimeThreshold = 60*60, rowFunc = redRowFun, dtc2 = Datetime_col)
+  function(d, TimeThreshold = Threshold, rowFunc = redRowFun, dtc2 = Datetime_col)
   {
     d = d[order(d[[dtc2]]), ] #order dataframe by DateTimeUTC
     g = cumsum( c(0, diff(d[[dtc2]])) > TimeThreshold )

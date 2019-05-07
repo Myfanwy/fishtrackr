@@ -4,14 +4,22 @@
 \alias{fishpaths}
 \title{fishpaths}
 \usage{
-fishpaths(x, TagID_col, Station_col, Datetime_col = "DateTimeUTC")
+fishpaths(x, TagID_col, Station_col, Datetime_col = "DateTimeUTC",
+  Threshold = 60 * 60)
 }
 \arguments{
 \item{x}{a dataframe of detections}
 
-\item{TagID_col}{must be called "TagID"}
+\item{TagID_col}{column containing unique fish identification codes}
 
-\item{Station_col}{must be called "Station"}
+\item{Station_col}{column containing unique station codes or names}
+
+\item{Datetime_col}{column containing date and time of detection, in POSIXct format ("%Y-%M-%D %H:%M:%S")}
+
+\item{Threshold}{desired time threshold between station visits, in seconds.  See details
+
+\details{
+The time threshold allows you to delineate the period of time that detections can be separated from each other at a receiver and still be considered part of the same "stay" at that receiver.  The default is 1 hour (`60*60`).  If you set Threhold = `60*60*2`, that means that after a fish arrives at a receiver, all detections that occur at that receiver within 2 hours of the first arrival are considered part of the same "stay" at that receiver.}}
 }
 \value{
 dataframe with fishpaths for each tagID
@@ -23,5 +31,5 @@ fishpaths
 # Test
 library(ybp)
 f <- all69khz_grouped
-fishpaths(f, f$TagID, f$Station)
+fishpaths(f, f$TagID, f$Station, "DateTimePST", 60*60*2) # time threshold of 2 hours
 }

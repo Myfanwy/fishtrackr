@@ -4,7 +4,8 @@
 \alias{getFirstLast}
 \title{getFirstLast}
 \usage{
-getFirstLast(df)
+getFirstLast(df, tidc2 = "TagID", dtc2 = "DateTimeUTC",
+  stnc2 = "Station")
 }
 \arguments{
 \item{df}{the output of the fishpaths() function: a dataframe that includes of TagIDs, arrival, departure, TagID, and Rkm.}
